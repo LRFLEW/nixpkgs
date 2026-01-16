@@ -30,7 +30,6 @@ let
           "UseDomains"
         ])
         (assertValueOneOf "SpeedMeter" boolValues)
-        (assertInt "SpeedMeterIntervalSec")
         (assertValueOneOf "ManageForeignRoutingPolicyRules" boolValues)
         (assertValueOneOf "ManageForeignRoutes" boolValues)
         (assertValueOneOf "ManageForeignNextHops" boolValues)
@@ -267,10 +266,6 @@ let
             "STP"
             "MulticastIGMPVersion"
           ])
-          (assertInt "HelloTimeSec")
-          (assertInt "MaxAgeSec")
-          (assertInt "ForwardDelaySec")
-          (assertInt "AgeingTimeSec")
           (assertRange "Priority" 0 65535)
           (assertRange "GroupForwardMask" 0 65535)
           (assertRangeOrOneOf "DefaultPVID" 0 4094 [ "none" ])
@@ -891,8 +886,6 @@ let
         (assertMinimum "IPv6DuplicateAddressDetection" 0)
         (assertInt "IPv6HopLimit")
         (assertMinimum "IPv6HopLimit" 0)
-        (assertInt "IPv6RetransmissionTimeSec")
-        (assertInt "IPv4DuplicateAddressDetectionTimeoutSec")
         (assertValueOneOf "IPv4ReversePathFilter" [
           "no"
           "strict"
@@ -1084,7 +1077,6 @@ let
           "dctcp"
           "vegas"
         ])
-        (assertInt "TCPRetransmissionTimeoutSec")
         (assertInt "NextHop")
       ];
 
@@ -1449,7 +1441,6 @@ let
           "Preference"
         ])
         (assertHasField "Route")
-        (assertInt "LifetimeSec")
         (assertValueOneOf "Preference" [
           "high"
           "medium"
@@ -1462,7 +1453,6 @@ let
           "Prefix"
           "LifetimeSec"
         ])
-        (assertInt "LifetimeSec")
       ];
 
       sectionBridge = checkUnitConfig "Bridge" [
@@ -1579,8 +1569,6 @@ let
           "PresumeAck"
           "ClassicDataLengthCode"
         ])
-        (assertInt "TimeQuantaNSec")
-        (assertRange "TimeQuantaNSec" 0 4294967295)
         (assertInt "PropagationSegment")
         (assertRange "PropagationSegment" 0 4294967295)
         (assertInt "PhaseBufferSegment1")
@@ -1589,8 +1577,6 @@ let
         (assertRange "PhaseBufferSegment2" 0 4294967295)
         (assertInt "SyncJumpWidth")
         (assertRange "SyncJumpWidth" 0 4294967295)
-        (assertInt "DataTimeQuantaNSec")
-        (assertRange "DataTimeQuantaNSec" 0 4294967295)
         (assertInt "DataPropagationSegment")
         (assertRange "DataPropagationSegment" 0 4294967295)
         (assertInt "DataPhaseBufferSegment1")
@@ -1697,7 +1683,6 @@ let
           "Handle"
           "PerturbPeriodSec"
         ])
-        (assertInt "PerturbPeriodSec")
       ];
 
       sectionBFIFO = checkUnitConfig "BFIFO" [
