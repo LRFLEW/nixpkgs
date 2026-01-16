@@ -122,6 +122,10 @@ in
       [Link]
       ${attrsToSection def.linkConfig}
     ''
+    + flip concatMapStrings def.SRIOVs (x: ''
+      [SR-IOV]
+      ${attrsToSection x}
+    '')
     + ''
       [Network]
     ''
@@ -170,8 +174,20 @@ in
       [Address]
       ${attrsToSection x}
     '')
+    + flip concatMapStrings def.neighbors (x: ''
+      [Neighbor]
+      ${attrsToSection x}
+    '')
+    + flip concatMapStrings def.ipv6AddressLabels (x: ''
+      [IPv6AddressLabel]
+      ${attrsToSection x}
+    '')
     + flip concatMapStrings def.routingPolicyRules (x: ''
       [RoutingPolicyRule]
+      ${attrsToSection x}
+    '')
+    + flip concatMapStrings def.nextHops (x: ''
+      [NextHop]
       ${attrsToSection x}
     '')
     + flip concatMapStrings def.routes (x: ''
@@ -328,6 +344,14 @@ in
     ''
     + optionalString (def.hierarchyTokenBucketClassConfig != { }) ''
       [HierarchyTokenBucketClass]
+      ${attrsToSection def.hierarchyTokenBucketClassConfig}
+    ''
+    + optionalString (def.classfulMultiQueueingConfig != { }) ''
+      [ClassfulMultiQueueing]
+      ${attrsToSection def.hierarchyTokenBucketClassConfig}
+    ''
+    + optionalString (def.bandMultiQueueingConfig != { }) ''
+      [BandMultiQueueing]
       ${attrsToSection def.hierarchyTokenBucketClassConfig}
     ''
     + optionalString (def.heavyHitterFilterConfig != { }) ''

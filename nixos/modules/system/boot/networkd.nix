@@ -753,6 +753,36 @@ let
         ])
       ];
 
+      sectionSRIOV = checkUnitConfig "SR-IOV" [
+        (assertOnlyFields [
+          "VirtualFunction"
+          "VLANId"
+          "QualityOfService"
+          "VLANProtocol"
+          "MACSpoofCheck"
+          "QueryReceiveSideScaling"
+          "Trust"
+          "LinkState"
+          "MACAddress"
+        ])
+        (assertHasField "VirtualFunction")
+        (assertInt "VirtualFunction")
+        (assertRange "VirtualFunction" 0 2147483646)
+        (assertInt "VLANId")
+        (assertRange "VLANId" 1 4095)
+        (assertInt "QualityOfService")
+        (assertRange "QualityOfService" 1 4294967294)
+        (assertValueOneOf "VLANProtocol" [
+          "802.1Q"
+          "802.1ad"
+        ])
+        (assertValueOneOf "MACSpoofCheck" boolValues)
+        (assertValueOneOf "QueryReceiveSideScaling" boolValues)
+        (assertValueOneOf "Trust" boolValues)
+        (assertValueOneOf "LinkState" boolValues ++ [ "auto" ])
+        (assertMacAddress "MACAddress")
+      ];
+
       sectionNetwork = checkUnitConfig "Network" [
         (assertOnlyFields [
           "Description"
@@ -957,6 +987,23 @@ let
         (assertValueOneOf "AutoJoin" boolValues)
       ];
 
+      sectionNeighbor = checkUnitConfig "Neighbor" [
+        (assertOnlyFields [
+          "Address"
+          "LinkLayerAddress"
+        ])
+      ];
+
+      sectionIPv6AddressLabel = checkUnitConfig "IPv6AddressLabel" [
+        (assertOnlyFields [
+          "Label"
+          "Prefix"
+        ])
+        (assertInt "Label")
+        (assertRange "Label" 0 4294967294)
+        (assertHasField "Prefix")
+      ];
+
       sectionRoutingPolicyRule =
         checkUnitConfigWithLegacyKey "routingPolicyRuleConfig" "RoutingPolicyRule"
           [
@@ -1007,6 +1054,22 @@ let
             ])
             (assertRange "SuppressInterfaceGroup" 0 2147483647)
           ];
+      
+      sectionNextHop = checkUnitConfig "NextHop" [
+        (assertOnlyFields [
+          "Id"
+          "Gateway"
+          "Family"
+          "OnLink"
+          "Blackhole"
+          "Group"
+        ])
+        (assertInt "Id")
+        (assertRange "Id" 1 4294967295)
+        (assertValueOneOf "Family" [ "ipv4" "ipv6" ])
+        (assertValueOneOf "OnLink" boolValues)
+        (assertValueOneOf "Blackhole" boolValues)
+      ]
 
       sectionRoute = checkUnitConfigWithLegacyKey "routeConfig" "Route" [
         (assertOnlyFields [
@@ -1904,6 +1967,20 @@ let
         ])
       ];
 
+      sectionClassfulMultiQueueing = checkUnitConfig "ClassfulMultiQueueing" [
+        (assertOnlyFields [
+          "Parent"
+          "Handle"
+        ])
+      ];
+
+      sectionBandMultiQueueing = checkUnitConfig "BandMultiQueueing" [
+        (assertOnlyFields [
+          "Parent"
+          "Handle"
+        ])
+      ];
+
       sectionHeavyHitterFilter = checkUnitConfig "HeavyHitterFilter" [
         (assertOnlyFields [
           "Parent"
@@ -2380,6 +2457,20 @@ let
       description = ''
         Each attribute in this set specifies an option in the
         `[Link]` section of the unit.  See
+        {manpage}`systemd.network(5)` for details.
+      '';
+    };
+
+    SRIOVs = mkOption {
+      default = [ ];
+      example = [
+        {
+          VirtualFunction = 0;
+        }
+      ];
+      type = types.listOf (types.addCheck (types.attrsOf unitOption) check.network.sectionSRIOV);
+      description = ''
+        A list of SR-IOV sections to be added to the unit.  See
         {manpage}`systemd.network(5)` for details.
       '';
     };
@@ -2953,6 +3044,32 @@ let
       '';
     };
 
+    classfulMultiQueueingConfig = mkOption {
+      default = { };
+      example = {
+        Parent = "root";
+      };
+      type = types.addCheck (types.attrsOf unitOption) check.network.sectionClassfulMultiQueueing;
+      description = ''
+        Each attribute in this set specifies an option in the
+        `[ClassfulMultiQueueing]` section of the unit.  See
+        {manpage}`systemd.network(5)` for details.
+      '';
+    };
+
+    bandMultiQueueingConfig = mkOption {
+      default = { };
+      example = {
+        Parent = "root";
+      };
+      type = types.addCheck (types.attrsOf unitOption) check.network.sectionBandMultiQueueing;
+      description = ''
+        Each attribute in this set specifies an option in the
+        `[BandMultiQueueing]` section of the unit.  See
+        {manpage}`systemd.network(5)` for details.
+      '';
+    };
+
     heavyHitterFilterConfig = mkOption {
       default = { };
       example = {
@@ -3150,7 +3267,37 @@ let
       example = [ { Address = "192.168.0.100/24"; } ];
       type = types.listOf (mkSubsectionType "addressConfig" check.network.sectionAddress);
       description = ''
-        A list of address sections to be added to the unit.  See
+        A list of [Address] sections to be added to the unit.  See
+        {manpage}`systemd.network(5)` for details.
+      '';
+    };
+
+    neighbors = mkOption {
+      default = [ ];
+      example = [
+        {
+          Address = "192.168.16.53";
+          LinkLayerAddress = "12:34:56:78:9a:bc";
+        }
+      ];
+      type = types.listOf (types.addCheck (types.attrsOf unitOption) check.network.sectionNeighbor);
+      description = ''
+        A list of [Neighbor] sections to be added to the unit.  See
+        {manpage}`systemd.network(5)` for details.
+      '';
+    };
+
+    ipv6AddressLabels = mkOption {
+      default = [ ];
+      example = [
+        {
+          Label = 0;
+          Prefix = "2001:db8::/64";
+        }
+      ];
+      type = types.listOf (types.addCheck (types.attrsOf unitOption) check.network.sectionNeighbor);
+      description = ''
+        A list of [IPv6AddressLabel] sections to be added to the unit.  See
         {manpage}`systemd.network(5)` for details.
       '';
     };
@@ -3169,6 +3316,16 @@ let
       );
       description = ''
         A list of routing policy rules sections to be added to the unit.  See
+        {manpage}`systemd.network(5)` for details.
+      '';
+    };
+
+    nextHops = mkOption {
+      default = [ ];
+      example = [ { Id = 1; Gateway = "192.168.100.1"; } ];
+      type = types.listOf (types.addCheck (types.attrsOf unitOption) check.network.sectionRoute);
+      description = ''
+        A list of route sections to be added to the unit.  See
         {manpage}`systemd.network(5)` for details.
       '';
     };
