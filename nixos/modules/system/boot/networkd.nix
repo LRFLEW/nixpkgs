@@ -24,15 +24,17 @@ let
           "ManageForeignRoutes"
           "ManageForeignNextHops"
           "RouteTable"
-          "IPv6PrivacyExtensions"
           "IPv4Forwarding"
           "IPv6Forwarding"
+          "IPv6PrivacyExtensions"
           "UseDomains"
         ])
         (assertValueOneOf "SpeedMeter" boolValues)
         (assertValueOneOf "ManageForeignRoutingPolicyRules" boolValues)
         (assertValueOneOf "ManageForeignRoutes" boolValues)
         (assertValueOneOf "ManageForeignNextHops" boolValues)
+        (assertValueOneOf "IPv4Forwarding" boolValues)
+        (assertValueOneOf "IPv6Forwarding" boolValues)
         (assertValueOneOf "IPv6PrivacyExtensions" (
           boolValues
           ++ [
@@ -40,9 +42,23 @@ let
             "kernel"
           ]
         ))
-        (assertValueOneOf "IPv4Forwarding" boolValues)
-        (assertValueOneOf "IPv6Forwarding" boolValues)
         (assertValueOneOf "UseDomains" (boolValues ++ [ "route" ]))
+      ];
+
+      sectionIPv6AcceptRA = checkUnitConfig "IPv6AcceptRA" [
+        (assertOnlyFields [
+          "UseDomains"
+        ])
+        (assertValueOneOf "UseDomains" boolValues)
+      ];
+
+      sectionIPv6AddressLabel = checkUnitConfig "IPv6AddressLabel" [
+        (assertOnlyFields [
+          "Label"
+          "Prefix"
+        ])
+        (assertInt "Label")
+        (assertRange "Label" 0 4294967294)
       ];
 
       sectionDHCPv4 = checkUnitConfig "DHCPv4" [
@@ -50,27 +66,41 @@ let
           "ClientIdentifier"
           "DUIDType"
           "DUIDRawData"
+          "UseDomains"
         ])
         (assertValueOneOf "ClientIdentifier" [
           "mac"
           "duid"
-          "duid-only"
         ])
+        (assertValueOneOf "UseDomains" boolValues)
       ];
 
       sectionDHCPv6 = checkUnitConfig "DHCPv6" [
         (assertOnlyFields [
           "DUIDType"
           "DUIDRawData"
+          "UseDomains"
         ])
+        (assertValueOneOf "UseDomains" boolValues)
+      ];
+
+      sectionDHCPServer = checkUnitConfig "DHCPServer" [
+        (assertOnlyFields [
+          "PersistentLeases"
+        ])
+        (assertValueOneOf "PersistentLeases"
+          boolValues ++ [ "runtime" ]
+        )
       ];
     };
 
     link = {
-
       sectionLink = checkUnitConfig "Link" [
         (assertOnlyFields [
           "Description"
+          "Property"
+          "ImportProperty"
+          "UnsetProperty"
           "Alias"
           "MACAddressPolicy"
           "MACAddress"
@@ -78,11 +108,15 @@ let
           "Name"
           "AlternativeNamesPolicy"
           "AlternativeName"
+          "TransmitQueues"
+          "ReceiveQueues"
+          "TransmitQueueLength"
           "MTUBytes"
           "BitsPerSecond"
           "Duplex"
           "AutoNegotiation"
           "WakeOnLan"
+          "WakeOnLanPassword"
           "Port"
           "Advertise"
           "ReceiveChecksumOffload"
@@ -90,20 +124,55 @@ let
           "TCPSegmentationOffload"
           "TCP6SegmentationOffload"
           "GenericSegmentationOffload"
+          "PartialGenericSegmentationOffload"
           "GenericReceiveOffload"
+          "GenericReceiveOffloadHardware"
           "LargeReceiveOffload"
+          "ReceivePacketSteeringCPUMask"
+          "ReceiveVLANCTAGHardwareAcceleration"
+          "TransmitVLANCTAGHardwareAcceleration"
+          "ReceiveVLANCTAGFilter"
+          "TransmitVLANSTAGHardwareAcceleration"
+          "NTupleFilter"
+          "ReceiveFCS"
+          "ReceiveAll"
           "RxChannels"
           "TxChannels"
           "OtherChannels"
           "CombinedChannels"
           "RxBufferSize"
+          "RxMiniBufferSize"
+          "RxJumboBufferSize"
           "TxBufferSize"
-          "ReceiveQueues"
-          "TransmitQueues"
-          "TransmitQueueLength"
           "RxFlowControl"
           "TxFlowControl"
           "AutoNegotiationFlowControl"
+          "GenericSegmentOffloadMaxBytes"
+          "GenericSegmentOffloadMaxSegments"
+          "UseAdaptiveRxCoalesce"
+          "UseAdaptiveTxCoalesce"
+          "RxCoalesceSec"
+          "RxCoalesceIrqSec"
+          "RxCoalesceLowSec"
+          "RxCoalesceHighSec"
+          "TxCoalesceSec"
+          "TxCoalesceIrqSec"
+          "TxCoalesceLowSec"
+          "TxCoalesceHighSec"
+          "RxMaxCoalescedFrames"
+          "RxMaxCoalescedIrqFrames"
+          "RxMaxCoalescedLowFrames"
+          "RxMaxCoalescedHighFrames"
+          "TxMaxCoalescedFrames"
+          "TxMaxCoalescedIrqFrames"
+          "TxMaxCoalescedLowFrames"
+          "TxMaxCoalescedHighFrames"
+          "CoalescePacketRateLow"
+          "CoalescePacketRateHigh"
+          "CoalescePacketRateSampleIntervalSec"
+          "StatisticsBlockCoalesceSec"
+          "MDI"
+          "SR-IOVVirtualFunctions"
         ])
         (assertValueOneOf "MACAddressPolicy" [
           "persistent"
@@ -111,6 +180,28 @@ let
           "none"
         ])
         (assertMacAddress "MACAddress")
+        (assertValuesSomeOf "NamePolicy" [
+          "kernel"
+          "database"
+          "onboard"
+          "slot"
+          "path"
+          "mac"
+          "keep"
+        ])
+        (assertValuesSomeOf "AlternativeNamesPolicy" [
+          "database"
+          "onboard"
+          "slot"
+          "path"
+          "mac"
+        ])
+        (assertInt "TransmitQueues")
+        (assertRange "TransmitQueues" 1 4096)
+        (assertInt "ReceiveQueues")
+        (assertRange "ReceiveQueues" 1 4096)
+        (assertInt "TransmitQueueLength")
+        (assertRange "TransmitQueueLength" 0 4294967294)
         (assertByteFormat "MTUBytes")
         (assertByteFormat "BitsPerSecond")
         (assertValueOneOf "Duplex" [
@@ -139,24 +230,83 @@ let
         (assertValueOneOf "TCPSegmentationOffload" boolValues)
         (assertValueOneOf "TCP6SegmentationOffload" boolValues)
         (assertValueOneOf "GenericSegmentationOffload" boolValues)
+        (assertValueOneOf "PartialGenericSegmentationOffload" boolValues)
         (assertValueOneOf "GenericReceiveOffload" boolValues)
+        (assertValueOneOf "GenericReceiveOffloadHardware" boolValues)
         (assertValueOneOf "LargeReceiveOffload" boolValues)
+        (assertValueOneOf "ReceiveVLANCTAGHardwareAcceleration" boolValues)
+        (assertValueOneOf "TransmitVLANCTAGHardwareAcceleration" boolValues)
+        (assertValueOneOf "ReceiveVLANCTAGFilter" boolValues)
+        (assertValueOneOf "TransmitVLANSTAGHardwareAcceleration" boolValues)
+        (assertValueOneOf "NTupleFilter" boolValues)
+        (assertValueOneOf "ReceiveFCS" boolValues)
+        (assertValueOneOf "ReceiveAll" boolValues)
         (assertValueOneOf "RxFlowControl" boolValues)
         (assertValueOneOf "TxFlowControl" boolValues)
         (assertValueOneOf "AutoNegotiationFlowControl" boolValues)
-        (assertInt "RxChannels")
-        (assertRange "RxChannels" 1 4294967295)
-        (assertInt "TxChannels")
-        (assertRange "TxChannels" 1 4294967295)
-        (assertInt "OtherChannels")
-        (assertRange "OtherChannels" 1 4294967295)
-        (assertInt "CombinedChannels")
-        (assertRange "CombinedChannels" 1 4294967295)
-        (assertInt "RxBufferSize")
-        (assertInt "TxBufferSize")
-        (assertRange "ReceiveQueues" 1 4096)
-        (assertRange "TransmitQueues" 1 4096)
-        (assertRange "TransmitQueueLength" 1 4294967294)
+        (assertByteFormat "GenericSegmentOffloadMaxBytes")
+        (assertInt "GenericSegmentOffloadMaxSegments")
+        (assertRange "GenericSegmentOffloadMaxSegments" 1 65535)
+        (assertValueOneOf "UseAdaptiveRxCoalesce" boolValues)
+        (assertValueOneOf "UseAdaptiveTxCoalesce" boolValues)
+        (assertInt "RxMaxCoalescedFrames")
+        (assertInt "RxMaxCoalescedIrqFrames")
+        (assertInt "RxMaxCoalescedLowFrames")
+        (assertInt "RxMaxCoalescedHighFrames")
+        (assertInt "TxMaxCoalescedFrames")
+        (assertInt "TxMaxCoalescedIrqFrames")
+        (assertInt "TxMaxCoalescedLowFrames")
+        (assertInt "TxMaxCoalescedHighFrames")
+        (assertInt "CoalescePacketRateLow")
+        (assertInt "CoalescePacketRateHigh")
+        (assertValueOneOf "MDI" [
+          "straight" "mdi"
+          "crossover" "mdi-x" "mdix"
+          "auto"
+        ])
+        (assertInt "SR-IOVVirtualFunctions")
+        (assertRange "SR-IOVVirtualFunctions" 0 2147483647)
+      ];
+
+      sectionSRVIOV = checkUnitConfig "Link" [
+        (assertOnlyFields [
+          "VirtualFunction"
+          "VLANId"
+          "QualityOfService"
+          "VLANProtocol"
+          "MACSpoofCheck"
+          "QueryReceiveSideScaling"
+          "Trust"
+          "LinkState"
+          "MACAddress"
+        ])
+        (assertHasField "VirtualFunction")
+        (assertInt "VirtualFunction")
+        (assertRange "VirtualFunction" 0 2147483646)
+        (assertInt "VLANId")
+        (assertRange "VLANId" 1 4095)
+        (assertInt "QualityOfService")
+        (assertRange "QualityOfService" 1 4294967294)
+        (assertValueOneOf "VLANProtocol" [
+          "802.1Q"
+          "802.1ad"
+        ])
+        (assertValueOneOf "MACSpoofCheck" boolValues)
+        (assertValueOneOf "QueryReceiveSideScaling" boolValues)
+        (assertValueOneOf "Trust" boolValues)
+        (assertValueOneOf "LinkState" boolValues ++ [ "auto" ])
+        (assertMacAddress "MACAddress")
+      ];
+
+      sectionEnergyEfficientEthernet = checkUnitConfig "EnergyEfficientEthernet" [
+        (assertOnlyFields [
+          "Enable"
+          "TxLowPowerIdle"
+          "TxLowPowerIdleSec"
+          "LinkMode"
+        ])
+        (assertValueOneOf "Enable" boolValues)
+        (assertValueOneOf "TxLowPowerIdle" boolValues)
       ];
     };
 
@@ -2076,6 +2226,34 @@ let
       '';
     };
 
+    ipv6AcceptRAConfig = mkOption {
+      default = { };
+      example = {
+        UseDomains = true;
+      };
+      type = types.addCheck (types.attrsOf unitOption) check.global.sectionIPv6AcceptRA;
+      description = ''
+        Each attribute in this set specifies an option in the
+        `[IPv6AcceptRA]` section of the networkd config.
+        See {manpage}`networkd.conf(5)` for details.
+      '';
+    };
+
+    ipv6AddressLabels = mkOption {
+      default = [ ];
+      example = [
+        {
+          Label = 0;
+          Prefix = "2001:db8::/64";
+        }
+      ];
+      type = types.listOf (types.addCheck (types.attrsOf unitOption) check.global.sectionIPv6AddressLabel);
+      description = ''
+        A list of [IPv6AddressLabel] sections to be added to the unit.
+        See {manpage}`networkd.conf(5)` for details.
+      '';
+    };
+
     dhcpV4Config = mkOption {
       default = { };
       example = {
@@ -2101,6 +2279,19 @@ let
         See {manpage}`networkd.conf(5)` for details.
       '';
     };
+
+    dhcpServer = mkOption {
+      default = { };
+      example = {
+        PersistLeases = "runtime";
+      };
+      type = types.addCheck (types.attrsOf unitOption) check.global.sectionDHCPServer;
+      description = ''
+        Each attribute in this set specifies an option in the
+        `[DHCPServer]` section of the networkd config.
+        See {manpage}`networkd.conf(5)` for details.
+      '';
+    }
   };
 
   linkOptions = commonNetworkOptions // {
@@ -2126,6 +2317,31 @@ let
       '';
     };
 
+    SRIOVConfig = mkOption {
+      default = { };
+      example = {
+        VirtualFunction = 0;
+      };
+      type = types.addCheck (types.attrsOf unitOption) check.link.sectionLink;
+      description = ''
+        Each attribute in this set specifies an option in the
+        `[SR-IOV]` section of the unit.  See
+        {manpage}`systemd.link(5)` for details.
+      '';
+    };
+
+    energyEfficientEthernetConfig = mkOption {
+      default = { };
+      example = {
+        Enable = true;
+      };
+      type = types.addCheck (types.attrsOf unitOption) check.link.sectionLink;
+      description = ''
+        Each attribute in this set specifies an option in the
+        `[EnergyEfficientEthernet]` section of the unit.  See
+        {manpage}`systemd.link(5)` for details.
+      '';
+    };
   };
 
   mkSubsectionType =
@@ -3295,7 +3511,7 @@ let
           Prefix = "2001:db8::/64";
         }
       ];
-      type = types.listOf (types.addCheck (types.attrsOf unitOption) check.network.sectionNeighbor);
+      type = types.listOf (types.addCheck (types.attrsOf unitOption) check.network.sectionIPv6AddressLabel);
       description = ''
         A list of [IPv6AddressLabel] sections to be added to the unit.  See
         {manpage}`systemd.network(5)` for details.
@@ -3401,6 +3617,14 @@ let
       [Network]
       ${attrsToSection def.networkConfig}
     ''
+    + optionalString (def.ipv6AcceptRAConfig != { }) ''
+      [IPv6AcceptRA]
+      ${attrsToSection def.ipv6AcceptRAConfig}
+    ''
+    + flip concatMapStrings def.ipv6AddressLabels (x: ''
+      [IPv6AddressLabel]
+      ${attrsToSection x}
+    '')
     + optionalString (def.dhcpV4Config != { }) ''
       [DHCPv4]
       ${attrsToSection def.dhcpV4Config}
@@ -3408,6 +3632,10 @@ let
     + optionalString (def.dhcpV6Config != { }) ''
       [DHCPv6]
       ${attrsToSection def.dhcpV6Config}
+    ''
+    + optionalString (def.dhcpServerConfig != { }) ''
+      [DHCPv6]
+      ${attrsToSection def.dhcpServerConfig}
     '';
   };
 

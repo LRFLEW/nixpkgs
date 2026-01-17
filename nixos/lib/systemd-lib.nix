@@ -190,6 +190,13 @@ rec {
       attr ? ${name} && !elem attr.${name} values
     ) "Systemd ${group} field `${name}' cannot have value `${toString attr.${name}}'.";
 
+  assertValuesSomeOf =
+    name: values: group: attr:
+    optional (
+      attr ? ${name}
+      && !(all (x: elem x values) (splitString " " attr.${name}))
+    ) "Systemd ${group} field `${name}' cannot have value `${toString attr.${name}}'.";
+
   assertValuesSomeOfOr =
     name: values: default: group: attr:
     optional (

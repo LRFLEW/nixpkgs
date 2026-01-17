@@ -24,6 +24,14 @@ in
       [Link]
       ${attrsToSection def.linkConfig}
     ''
+    + optionalString (def.SRIOVConfig != { }) ''
+      [SR-IOV]
+      ${attrsToSection def.SRIOVConfig}
+    ''
+    + optionalString (def.energyEfficientEthernetConfig != { }) ''
+      [EnergyEfficientEthernet]
+      ${attrsToSection def.energyEfficientEthernetConfig}
+    ''
     + def.extraConfig;
 
   netdevToUnit =
