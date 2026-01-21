@@ -95,6 +95,27 @@ let
     };
 
     link = {
+      sectionMatch = checkUnitConfig "Match" [
+        (assertOnlyFields [
+          "MACAddress"
+          "PermanentMACAddress"
+          "Path"
+          "Driver"
+          "Type"
+          "Kind"
+          "Property"
+          "OriginalName"
+          "Host"
+          "Virtualization"
+          "KernelCommandLine"
+          "KernelVersion"
+          "Version"
+          "Credential"
+          "Architecture"
+          "Firmware"
+        ])
+      ];
+
       sectionLink = checkUnitConfig "Link" [
         (assertOnlyFields [
           "Description"
@@ -364,6 +385,18 @@ let
         ];
       in
       {
+        sectionMatch = checkUnitConfig "Match" [
+          (assertOnlyFields [
+            "Host"
+            "Virtualization"
+            "KernelCommandLine"
+            "KernelVersion"
+            "Version"
+            "Credential"
+            "Architecture"
+            "Firmware"
+          ])
+        ];
 
         sectionNetdev = checkUnitConfig "Netdev" [
           (assertOnlyFields [
@@ -1054,6 +1087,43 @@ let
       };
 
     network = {
+      sectionMatch = checkUnitConfig "Match" [
+        (assertOnlyFields [
+          "MACAddress"
+          "PermanentMACAddress"
+          "Path"
+          "Driver"
+          "Type"
+          "Kind"
+          "Property"
+          "Name"
+          "WLANInterfaceType"
+          "SSID"
+          "BSSID"
+          "Host"
+          "Virtualization"
+          "KernelCommandLine"
+          "KernelVersion"
+          "Version"
+          "Credential"
+          "Architecture"
+          "Firmware"
+        ])
+        (assertValuesSomeOfNegatable "WLANInterfaceType" [
+          "ad-hoc"
+          "station"
+          "ap"
+          "ap-vlan"
+          "wds"
+          "monitor"
+          "mesh-point"
+          "p2p-client"
+          "p2p-go"
+          "p2p-device"
+          "ocb"
+          "nan"
+        ])
+      ];
 
       sectionLink = checkUnitConfig "Link" [
         (assertOnlyFields [
@@ -2397,22 +2467,6 @@ let
       '';
     };
 
-    matchConfig = mkOption {
-      default = { };
-      example = {
-        Name = "eth0";
-      };
-      type = types.attrsOf unitOption;
-      description = ''
-        Each attribute in this set specifies an option in the
-        `[Match]` section of the unit.  See
-        {manpage}`systemd.link(5)`
-        {manpage}`systemd.netdev(5)`
-        {manpage}`systemd.network(5)`
-        for details.
-      '';
-    };
-
     extraConfig = mkOption {
       default = "";
       type = types.lines;
@@ -2518,6 +2572,19 @@ let
       '';
     };
 
+    matchConfig = mkOption {
+      default = { };
+      example = {
+        OriginalName = "eno1";
+      };
+      type = types.addCheck (types.attrsOf unitOption) check.link.sectionMatch;
+      description = ''
+        Each attribute in this set specifies an option in the
+        `[Match]` section of the unit.  See
+        {manpage}`systemd.link(5)` for details.
+      '';
+    };
+
     linkConfig = mkOption {
       default = { };
       example = {
@@ -2578,6 +2645,16 @@ let
     };
 
   netdevOptions = commonNetworkOptions // {
+
+    matchConfig = mkOption {
+      default = { };
+      type = types.addCheck (types.attrsOf unitOption) check.netdev.sectionMatch;
+      description = ''
+        Each attribute in this set specifies an option in the
+        `[Match]` section of the unit.  See
+        {manpage}`systemd.netdev(5)` for details.
+      '';
+    };
 
     netdevConfig = mkOption {
       example = {
@@ -2987,6 +3064,19 @@ let
   };
 
   networkOptions = commonNetworkOptions // {
+
+    matchConfig = mkOption {
+      default = { };
+      example = {
+        Name = "eth0";
+      };
+      type = types.addCheck (types.attrsOf unitOption) check.network.sectionMatch;
+      description = ''
+        Each attribute in this set specifies an option in the
+        `[Match]` section of the unit.  See
+        {manpage}`systemd.network(5)` for details.
+      '';
+    };
 
     linkConfig = mkOption {
       default = { };

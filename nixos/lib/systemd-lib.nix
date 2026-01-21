@@ -204,6 +204,13 @@ rec {
       && !(all (x: elem x values) (splitString " " attr.${name}) || attr.${name} == default)
     ) "Systemd ${group} field `${name}' cannot have value `${toString attr.${name}}'.";
 
+  assertValuesSomeOfNegatable =
+    name: values: group: attr:
+    optional (
+      attr ? ${name}
+      && !(all (x: elem x values) (splitString " " (lib.removePrefix "!" attr.${name})))
+    ) "Systemd ${group} field `${name}' cannot have value `${toString attr.${name}}'.";
+
   assertHasField =
     name: group: attr:
     optional (!(attr ? ${name})) "Systemd ${group} field `${name}' must exist.";

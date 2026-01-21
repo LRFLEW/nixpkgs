@@ -8,18 +8,15 @@ let
     optionalString
     ;
 
-  attrsToSection = systemdUtils.lib.attrsToSection;
-  commonMatchText =
-    def:
-    optionalString (def.matchConfig != { }) ''
-      [Match]
-      ${attrsToSection def.matchConfig}
-    '';
+  attrsToSection = systemdUtils.lib.attrsToSection;;
 in
 {
   linkToUnit =
     def:
-    commonMatchText def
+    optionalString (def.matchConfig != { }) ''
+      [Match]
+      ${attrsToSection def.matchConfig}
+    ''
     + ''
       [Link]
       ${attrsToSection def.linkConfig}
@@ -36,7 +33,10 @@ in
 
   netdevToUnit =
     def:
-    commonMatchText def
+    optionalString (def.matchConfig != { }) ''
+      [Match]
+      ${attrsToSection def.matchConfig}
+    ''
     + ''
       [NetDev]
       ${attrsToSection def.netdevConfig}
@@ -165,7 +165,10 @@ in
 
   networkToUnit =
     def:
-    commonMatchText def
+    optionalString (def.matchConfig != { }) ''
+      [Match]
+      ${attrsToSection def.matchConfig}
+    ''
     + optionalString (def.linkConfig != { }) ''
       [Link]
       ${attrsToSection def.linkConfig}
