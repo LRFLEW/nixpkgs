@@ -49,6 +49,14 @@ in
       [VLAN]
       ${attrsToSection def.vlanConfig}
     ''
+    + optionalString (def.macvlanConfig != { }) ''
+      [MACVLAN]
+      ${attrsToSection def.macvlanConfig}
+    ''
+    + optionalString (def.macvtapConfig != { }) ''
+      [MACVTAP]
+      ${attrsToSection def.macvtapConfig}
+    ''
     + optionalString (def.ipvlanConfig != { }) ''
       [IPVLAN]
       ${attrsToSection def.ipvlanConfig}
@@ -57,14 +65,46 @@ in
       [IPVTAP]
       ${attrsToSection def.ipvtapConfig}
     ''
-    + optionalString (def.macvlanConfig != { }) ''
-      [MACVLAN]
-      ${attrsToSection def.macvlanConfig}
-    ''
     + optionalString (def.vxlanConfig != { }) ''
       [VXLAN]
       ${attrsToSection def.vxlanConfig}
     ''
+    + optionalString (def.geneveConfig != { }) ''
+      [GENEVE]
+      ${attrsToSection def.geneveConfig}
+    ''
+    + optionalString (def.hsrConfig != { }) ''
+      [HSR]
+      ${attrsToSection def.hsrConfig}
+    ''
+    + optionalString (def.bareUDPConfig != { }) ''
+      [BareUDP]
+      ${attrsToSection def.bareUDPConfig}
+    ''
+    + optionalString (def.l2tpConfig != { }) ''
+      [L2TP]
+      ${attrsToSection def.l2tpConfig}
+    ''
+    + flip concatMapStrings def.l2tpSessions (x: ''
+      [L2TPSession]
+      ${attrsToSection x}
+    '')
+    + optionalString (def.macsecConfig != { }) ''
+      [MACsec]
+      ${attrsToSection def.macsecConfig}
+    ''
+    + flip concatMapStrings def.macsecReceiveChannels (x: ''
+      [MACsecReceiveChannel]
+      ${attrsToSection x}
+    '')
+    + flip concatMapStrings def.macsecTransmitAssociations (x: ''
+      [MACsecTransmitAssociation]
+      ${attrsToSection x}
+    '')
+    + flip concatMapStrings def.macsecReceiveAssociations (x: ''
+      [MACsecReceiveAssociation]
+      ${attrsToSection x}
+    '')
     + optionalString (def.tunnelConfig != { }) ''
       [Tunnel]
       ${attrsToSection def.tunnelConfig}
@@ -77,6 +117,10 @@ in
       [Peer]
       ${attrsToSection def.peerConfig}
     ''
+    + optionalString (def.vxcanConfig != { }) ''
+      [VXCAN]
+      ${attrsToSection def.vxcanConfig}
+    ''
     + optionalString (def.tunConfig != { }) ''
       [Tun]
       ${attrsToSection def.tunConfig}
@@ -85,14 +129,6 @@ in
       [Tap]
       ${attrsToSection def.tapConfig}
     ''
-    + optionalString (def.l2tpConfig != { }) ''
-      [L2TP]
-      ${attrsToSection def.l2tpConfig}
-    ''
-    + flip concatMapStrings def.l2tpSessions (x: ''
-      [L2TPSession]
-      ${attrsToSection x}
-    '')
     + optionalString (def.wireguardConfig != { }) ''
       [WireGuard]
       ${attrsToSection def.wireguardConfig}
@@ -113,13 +149,17 @@ in
       [VRF]
       ${attrsToSection def.vrfConfig}
     ''
-    + optionalString (def.wlanConfig != { }) ''
-      [WLAN]
-      ${attrsToSection def.wlanConfig}
-    ''
     + optionalString (def.batmanAdvancedConfig != { }) ''
       [BatmanAdvanced]
       ${attrsToSection def.batmanAdvancedConfig}
+    ''
+    + optionalString (def.ipoibConfig != { }) ''
+      [IPoIB]
+      ${attrsToSection def.ipoibConfig}
+    ''
+    + optionalString (def.wlanConfig != { }) ''
+      [WLAN]
+      ${attrsToSection def.wlanConfig}
     ''
     + def.extraConfig;
 

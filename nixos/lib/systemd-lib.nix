@@ -226,6 +226,12 @@ rec {
       )
       "Systemd ${group} field `${name}' is not a value in range [${toString min},${toString max}], or one of ${toString values}";
 
+  assertRangeExcluding =
+    name: min: max: exclude: group: attr:
+    optional (
+      attr ? ${name} && !(min <= attr.${name} && max >= attr.${name} && !(elem attr.${name} exclude))
+    ) "Systemd ${group} field `${name}' is outside the range [${toString min},${toString max}] excluding ${toString exclude}";
+
   assertRangeWithOptionalMask =
     name: min: max: group: attr:
     if (attr ? ${name}) then
